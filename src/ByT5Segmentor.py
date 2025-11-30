@@ -221,9 +221,8 @@ def safe_literal_eval(x):
         return [str(x)]
             
 def main():
-    segmentor_training_corpus_path = "/mnt/vast-react/projects/react_ag_beinborn_students/u17842/Datasets/Single_Suffix_Verb_Noun_Chunks/SegmentorTrainingCorpus.csv"
-    segmentor_path = "/projects/extern/react/react_ag_beinborn/react_ag_beinborn_students/dir.project/u17842/ByT5Segmentor/"
-    df = pd.read_csv(segmentor_training_corpus_path, index_col=None)
+    segmentor_dir = [SEGMENTOR_MODELS_BASE_DIR]
+    df = pd.read_csv([SEGMENTOR_TRAINING_COPRUS_PATH], index_col=None)
     
     parser = argparse.ArgumentParser(description='Description of your program')
     parser.add_argument('column', nargs='+', help='What column in the segmentation')

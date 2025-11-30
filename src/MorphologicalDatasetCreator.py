@@ -139,5 +139,5 @@ if __name__ == "__main__":
             split_morphologies.append(splitmorph.split(' '))
             morphologies.append(morph)
             altered_morphologies.append(alteredmorph.split(' '))
-    singleEndingDf = pd.DataFrame({'Word':inflections, 'Canonical Split':split_morphologies, 'Morphology':morphologies, 'Altered Morphology':altered_morphologies})
-    singleEndingDf.to_csv([VERB_NOUN_GENERATED_CSV_PATH], index=False)
+    singleSuffixesDf = pd.DataFrame({'Word':inflections, 'Canonical Split':split_morphologies, 'Morphology':morphologies, 'Altered Morphology':altered_morphologies})
+    singleSuffixesDf.to_csv([VERB_NOUN_GENERATED_CSV_PATH], index=False)
