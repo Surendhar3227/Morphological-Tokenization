@@ -115,7 +115,7 @@ if __name__ == "__main__":
     tamizhi_noun_list = unique_tamil_nouns['word'].tolist()    
     noun_suffixes = ['கள்','இன்','ஆக','ஆன','உடன்','இல்லாமல்','இடம்','களினுடன்','களுக்காக','ஐப்பற்றி',
             'இலிருந்து','இல்','உக்கு','ஆ','அது', 'உடைய', 'ஓடு','ஐ','இருந்து','ஆல்']
-    single_suffixes = ['க்', 'ட்', 'ங்', 'த்', 'ச்', 'ந்', 'ப்', 'வ்', 'ய்','லே', 'ே', 'ேயே', 'லேயே', 'யே'] 
+    single_suffixes = ['க்', 'ட்', 'ங்', 'த்', 'ச்', 'ந்', 'ப்', 'வ்', 'ய்'] 
     intersection = set(noun_list).union(set(tamizhi_noun_list))
     new_noun_list = list(intersection)
     noun_morphology_df = perform_noun_inflections(new_noun_list, noun_suffixes)
@@ -126,4 +126,18 @@ if __name__ == "__main__":
 
     # Combine noun and verb morphological dataframes
     combined_df = pd.concat([noun_morphology_df, verb_morphology_df])
-    combined_df.to_csv("./Outputs/GeneratedVerbsNouns.csv", index=False)
+
+    inflections  = []
+    morphologies = []
+    split_morphologies = []
+    altered_morphologies = []
+
+    for single_suffix in single_suffixes:
+        for index, row in tqdm(combined_df.iterrows(), total=(combined_df.shape[0]), desc="Inflections", position=0):
+            inflect, morph, splitmorph, alteredmorph = add_single_suffix(row, single_suffix)
+            inflections.append(inflect)
+            split_morphologies.append(splitmorph.split(' '))
+            morphologies.append(morph)
+            altered_morphologies.append(alteredmorph.split(' '))
+    singleEndingDf = pd.DataFrame({'Word':inflections, 'Canonical Split':split_morphologies, 'Morphology':morphologies, 'Altered Morphology':altered_morphologies})
+    singleEndingDf.to_csv([VERB_NOUN_GENERATED_CSV_PATH], index=False)
