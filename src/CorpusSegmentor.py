@@ -8,6 +8,15 @@ import re
 from typing import List
 import argparse
 
+def get_num_lines(file_path):
+    with open(file_path, 'r', encoding='utf-8') as fin:
+        return sum(1 for _ in fin)\
+
+def check_word_joining(word):
+    if (type(word) is not str):
+        return str(word)
+    return word
+
 class InferenceDataset(Dataset):
     def __init__(self, words: List[str], tokenizer, max_length: int = 128):
         self.words = words
@@ -150,6 +159,7 @@ def main():
     
     # Add segmentations to dataframe
     segmented_df = df.copy()
+    del df
     segmented_df['segmentation'] = segmentations
     
     # Remove morpheme separator tags and compute morpheme counts
@@ -158,6 +168,20 @@ def main():
     segmented_df['Morphemes Count'] = segmented_df['temp'].apply(len)
 
     segmented_df.to_csv(output_csv, index=False)
+
+    # Replace words in corpus using respective scheme based segmentations
+    replacement_dict = dict(zip(segmented_df['Word'], segmented_df['Morphemes']))
+    SEGMENTED_CORPUS_PATH = f"{segmentor}[TARGET_CORPUS_NAME].txt"
+    total_lines = get_num_lines([TARGET_CORPUS_PATH])
+    
+    count = 0
+    with open([TARGET_CORPUS_PATH], 'r', encoding='utf-8') as fin, open(SEGMENTED_CORPUS_PATH, 'w', encoding='utf-8') as fout:
+        print("The word replacement process has started \n")
+        for line in tqdm(fin, desc="Processed sentences", total=total_lines):
+            words = line.strip().split()
+            replaced_words = [str(replacement_dict.get(word, word)) for word in words]
+            fout.write(' '.join(replaced_words) + '\n')
+    print("Replacement complete. Output saved to:", SEGMENTED_CORPUS_PATH)
 
 if __name__ == "__main__":
     main()
