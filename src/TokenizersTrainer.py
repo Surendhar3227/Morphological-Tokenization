@@ -251,9 +251,9 @@ def main():
     elif dataset == "IndicCorpus":
         FILTERED_FILE = [CLEANED_INDIC_CORPUS_PATH]
     elif dataset == "SSSIndicCorpus":
-        FILTERED_FILE = [SSS_INDIC_CORPUS_PATH]
+        FILTERED_FILE = [SSS_INDIC_CORPUS_PATH] #Indic corpus with segmented replacements as the output of CorpusSegmentor.py script
     elif dataset == "CSSIndicCorpus":
-        FILTERED_FILE = [CSS_INDIC_CORPUS_PATH]
+        FILTERED_FILE = [CSS_INDIC_CORPUS_PATH] #Indic corpus with segmented replacements as the output of CorpusSegmentor.py script
     elif dataset =="Balanced":
         corpus1_path = [CLEANED_WIKI_CORPUS_PATH]
         corpus2_path = [CLEANED_INDIC_CORPUS_PATH]

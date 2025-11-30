@@ -171,17 +171,17 @@ def main():
 
     # Replace words in corpus using respective scheme based segmentations
     replacement_dict = dict(zip(segmented_df['Word'], segmented_df['Morphemes']))
-    segmented_corpus = f"{segmentor}[TARGET_CORPUS_NAME].txt"
+    SEGMENTED_CORPUS_PATH = f"{segmentor}[TARGET_CORPUS_NAME].txt"
     total_lines = get_num_lines([TARGET_CORPUS_PATH])
     
     count = 0
-    with open([TARGET_CORPUS_PATH], 'r', encoding='utf-8') as fin, open(segmented_corpus, 'w', encoding='utf-8') as fout:
+    with open([TARGET_CORPUS_PATH], 'r', encoding='utf-8') as fin, open(SEGMENTED_CORPUS_PATH, 'w', encoding='utf-8') as fout:
         print("The word replacement process has started \n")
         for line in tqdm(fin, desc="Processed sentences", total=total_lines):
             words = line.strip().split()
             replaced_words = [str(replacement_dict.get(word, word)) for word in words]
             fout.write(' '.join(replaced_words) + '\n')
-    print("Replacement complete. Output saved to:", segmented_corpus)
+    print("Replacement complete. Output saved to:", SEGMENTED_CORPUS_PATH)
 
 if __name__ == "__main__":
     main()
