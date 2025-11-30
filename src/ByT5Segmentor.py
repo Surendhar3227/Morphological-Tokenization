@@ -221,18 +221,17 @@ def safe_literal_eval(x):
         return [str(x)]
             
 def main():
-    segmentor_training_corpus_path = "/mnt/vast-react/projects/react_ag_beinborn_students/u17842/Datasets/Single_Suffix_Verb_Noun_Chunks/SegmentorTrainingCorpus.csv"
-    segmentor_path = "/projects/extern/react/react_ag_beinborn/react_ag_beinborn_students/dir.project/u17842/ByT5Segmentor/"
-    df = pd.read_csv(segmentor_training_corpus_path, index_col=None)
+    segmentor_dir = [SEGMENTOR_MODELS_BASE_DIR]
+    df = pd.read_csv([SEGMENTOR_TRAINING_COPRUS_PATH], index_col=None)
     
     parser = argparse.ArgumentParser(description='Description of your program')
     parser.add_argument('column', nargs='+', help='What column in the segmentation')
     args = parser.parse_args()
     segmentation_column = " ".join(args.column)
-    specific_path = os.path.join(segmentor_path, segmentation_column.replace("'",''))
+    specific_path = os.path.join([SEGMENTOR_TRAINING_COPRUS_PATH], segmentation_column.replace("'",''))
     print(specific_path)
     
-    model = ByT5SegmentationModel(model_name="/mnt/vast-react/home/surendhar.m/u17842/gpu_workspace/byt5-small")
+    model = ByT5SegmentationModel(model_name=[LOADED_PRETRAINED_SEGMENTOR_MODEL_PATH])
     train_words, test_words, train_segs, test_segs = model.prepare_data(
         df, word_col='Word', segmentation_col=segmentation_column)
     
