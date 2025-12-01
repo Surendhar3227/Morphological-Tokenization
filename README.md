@@ -128,6 +128,5 @@ Fine-tuning script for the individual models on WikiANN NER dataset for Tamil.
 
 It is recommended to run these scripts in HPC environments to meet the required compute resource requirements.
 
-```
 
 
