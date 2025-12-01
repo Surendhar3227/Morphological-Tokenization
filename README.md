@@ -59,35 +59,48 @@ cd Morphologically-Informed-Tokenization-for-Tamil
 module load miniforge3 # Or respective module load function for "conda"
 bash setup.sh
 ```
+
 ---
 ## Individual Script Execution
-Before executing any scripts certain variables in indivudal .py scripts should be updated with respective values of corpus_paths or model save locations or model names as preferred. A detailed explanation on the properties and significance of these variables are provided below, according to individual .py file:
-### MorphologicalDatasetCreator.py
+Before executing any scripts certain variables in indivudal .py scripts should be updated with respective values of corpus_paths or model save locations or model names as preferred. All the individual scripts mentioned below shall be executed in HPC setup using slurm job schedulers. Individual slurm job scripts are located in `hpc`, with identical name to the actual .py script. When executed, the scripts should be executed only in the specific order mentioned below. A detailed explanation on the properties and significance of these variables are provided below, according to individual .py file:
+
+#### MorphologicalDatasetCreator.py
+An extensive morphological dataset is created using this script, the words generated are language rule based which uses a collection of root words, possible suffixes with their order of derivation and word formation rules. These words shall or shall not be existing in natural language texts, which shall be handled along with some more specific inflections in the later scripts.
+
 | Variable | Description |
 |----------|-------------|
 | `VERB_NOUN_GENERATED_CSV_PATH` | Path where the generated morphological dataset should be stored in CSV format |
-### ObtainExistingMorphologicalWords.py
+
+#### ObtainExistingMorphologicalWords.py
+Generated morphological words using the `src\MorphologicalDatasetCreator.py` is further inflected with single ending suffixes and then a subset of these generated words which exist in natural texts are extracted for further training of byte-level segemters. As a result of executing this script a segmentor training dataset is created in specific path.
+
 | Variable | Description |
 |----------|-------------|
 | `VERB_NOUN_GENERATED_CSV_PATH` | Path to the generated morphological dataset (same as in MorphologicalDatasetCreator.py) |
 | `COMPLETED_MORPH_OUTPUT_CHUNKS_DIR` | Directory path for storing processed chunks of the morphological dataset |
 | `SEGMENTOR_TRAINING_CORPUS_PATH` | Path to store the morphological segmentation dataset used to train the ByT5Segmentor |
 
-### ByT5Segmentor.py
+#### ByT5Segmentor.py
+Byte-level segmenter model trianing script, uses morphologically created dataset which includes morpheme segmentations for individual words. 2 scheme-based segmenters shall be created as a result of executing this script.
+
 | Variable | Description |
 |----------|-------------|
 | `SEGMENTER_MODEL_BASE_DIR` | Directory path to store the trained segmenters |
 | `SEGMENTOR_TRAINING_CORPUS_PATH` | Path to the morphological segmentation dataset (same as in ObtainExistingMorphologicalWords.py) |
 | `LOADED_PRETRAINED_SEGMENTOR_MODEL_PATH` | Local path where the byt5-small model is loaded from Hugging Face |
 
-### CorpusSegmenter.py
+#### CorpusSegmenter.py
+Trained segmenters are utilized to replace the words in a corpus with their respective morphological segmentations. For every single corpus 2 scheme-based segmented corpus will be generated.
+
 | Variable | Description |
 |----------|-------------|
 | `SEGMENTOR_MODELS_BASE_DIR` | Directory path to the trained segmenter models (same as in ByT5Segmentor.py) |
 | `TARGET_CORPUS_UNIQUE_WORDS_CSV_PATH` | Path to CSV containing unique words from the target Tamil corpus |
 | `TARGET_CORPUS_PATH` | Path to save the Tamil corpus with morphologically segmented words |
 
-### TokenizersTrainer.py
+#### TokenizersTrainer.py
+Scheme-based segmented corpus along with a baseline un-altered equivalent corpus is used to train 3 sets of tokenizers which implement Byte-level BPE, UnigramLM and Wordpiece. Each set has tokenizers for 6 different vocabulary sizes.
+
 | Variable | Description |
 |----------|-------------|
 | `TOKENIZER_SAVE_DIR` | Directory path to save the trained tokenizers |
@@ -97,73 +110,24 @@ Before executing any scripts certain variables in indivudal .py scripts should b
 | `CSS_SEGMENTED_INDIC_CORPUS_PATH` | Path to IndicNLP Tamil corpus segmented using CSS-Scheme |
 | `BALANCED_CORPUS_DIR` | Directory to store size-balanced corpora |
 
-### TamilBERT.py
+#### TamilBERT.py
+Using the scheme based and baseline tokenizers of vocabulary size 3000, 3 BERT-style models are pre-trained. Pre-trianing does not use segmented corpus.
+
 | Variable | Description |
 |----------|-------------|
 | `TAMIL_BERT_MODELS_BASE_DIR` | Directory to save pre-trained Tamil BERT-style models |
 
-### NERFinetuningTamilBERT.py
+#### NERFinetuningTamilBERT.py
+Fine-tuning script for the individual models on WikiANN NER dataset for Tamil.
+
 | Variable | Description |
 |----------|-------------|
 | `PRETRAINED_TAMIL_BERT_MODEL` | Name of the pre-trained Tamil BERT model to use |
 | `SAVED_CHECKPOINT_NAME` | Model checkpoint folder name (will be inside `TAMIL_BERT_MODELS_BASE_DIR`) |
 
 
-The source scripts must be executed in a specific order to follow the pipeline on creating the dataset and further downstream model trainings. 
+It is recommended to run these scripts in HPC environments to meet the required compute resource requirements.
 
-### 1. Create morphological datasets
-```bash
-python src/MorphologicalDatasetCreator.py \
-    --input data/raw.txt \
-    --output data/dataset.csv
-```
-
-### 2. Train tokenizers
-```bash
-python src/TokenizersTrainer.py \
-    --config configs/tokenizer_config.json
-```
-
-### 3. Train ByT5 segmentor
-(usually run on HPC)
-```bash
-python src/ByT5Segmentor.py \
-    --config configs/byt5_train.json \
-    --output_dir outputs/byt5/
-```
-
-### 4. Segment a corpus
-```bash
-python src/CorpusSegmentor.py \
-    --model outputs/byt5/best_model \
-    --input data/corpus.txt \
-    --output outputs/corpus_segmented.txt
-```
-
-### 5. Vocabulary coverage analysis
-```bash
-python src/ExpandGeneratedWords_CheckCoverage.py \
-    --generated data/generated_words.txt \
-    --corpus data/corpus.txt
-```
-
----
-
-## 🖥️ HPC/SLURM Support
-
-If you are using an HPC cluster, refer to:
-
-👉 **`README-HPC.md`** — Contains:
-- Module-loading instructions  
-- Virtual environment setup  
-- SLURM templates for training and inference  
-- Best practices for long-running jobs  
-
-All heavy scripts can be run via:
-
-```bash
-sbatch hpc/templates/slurm_train.sbatch
-sbatch hpc/templates/slurm_infer.sbatch
 ```
 
 
